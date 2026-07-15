@@ -1,0 +1,17 @@
+# Build output
+1.6/Assemblies/*.dll
+1.6/Assemblies/*.pdb
+Source/obj/
+Source/bin/
+
+# IDE
+.vs/
+*.user
+*.suo
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Misc
+RimTalkDistanceControl.zip
