@@ -14,6 +14,7 @@ namespace RimTalkDistanceControl
         public const float ViewingRange = 20f;
         public const int ContextDistance = 5;
         public const int NearbyCellsDistance = 5;
+        public const bool BlockSlightedDebuff = false;
     }
 
     public class DistanceControlSettings : ModSettings
@@ -48,6 +49,11 @@ namespace RimTalkDistanceControl
         /// </summary>
         public int NearbyCellsDistance = DefaultValues.NearbyCellsDistance;
 
+        /// <summary>
+        /// 是否拦截 RimTalk 的"被忽视"(Slighted) debuff 施加
+        /// </summary>
+        public bool BlockSlightedDebuff = DefaultValues.BlockSlightedDebuff;
+
         public override void ExposeData()
         {
             Scribe_Values.Look(ref TalkDistance, "talkDistance", DefaultValues.TalkDistance);
@@ -56,6 +62,7 @@ namespace RimTalkDistanceControl
             Scribe_Values.Look(ref ViewingRange, "viewingRange", DefaultValues.ViewingRange);
             Scribe_Values.Look(ref ContextDistance, "contextDistance", DefaultValues.ContextDistance);
             Scribe_Values.Look(ref NearbyCellsDistance, "nearbyCellsDistance", DefaultValues.NearbyCellsDistance);
+            Scribe_Values.Look(ref BlockSlightedDebuff, "blockSlightedDebuff", DefaultValues.BlockSlightedDebuff);
         }
     }
 }

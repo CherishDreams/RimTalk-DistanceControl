@@ -168,6 +168,7 @@ namespace RimTalkDistanceControl
             // Null guard to prevent NRE and null==null false positive
             if (initiator == null || recipient == null)
             {
+                Log.Warning($"[RimTalk 距离控制] CanTalk 拒绝: 参数为空. initiator={initiator}, recipient={recipient}");
                 __result = false;
                 return false;
             }
@@ -187,6 +188,8 @@ namespace RimTalkDistanceControl
             // Check distance (0 = unlimited)
             if (settings.TalkDistance > 0 && distance > settings.TalkDistance)
             {
+                Log.Warning($"[RimTalk 距离控制] CanTalk 拒绝: 距离 {distance:F1} 超出对话距离 {settings.TalkDistance}. " +
+                    $"发起者={initiator.LabelShort}({initiator.Position}), 接收者={recipient.LabelShort}({recipient.Position})");
                 __result = false;
                 return false;
             }
@@ -200,6 +203,10 @@ namespace RimTalkDistanceControl
                                 (room1 == null && room2 == null);
                 if (!sameRoom)
                 {
+                    string room1Desc = room1 != null ? $"室内(露天={room1.PsychologicallyOutdoors})" : "室外";
+                    string room2Desc = room2 != null ? $"室内(露天={room2.PsychologicallyOutdoors})" : "室外";
+                    Log.Warning($"[RimTalk 距离控制] CanTalk 拒绝: 不在同一房间. " +
+                        $"发起者={initiator.LabelShort}({room1Desc}), 接收者={recipient.LabelShort}({room2Desc})");
                     __result = false;
                     return false;
                 }
@@ -380,6 +387,26 @@ namespace RimTalkDistanceControl
         static void Prefix(ref int distance)
         {
             distance = DistanceControlMod.Settings.NearbyCellsDistance;
+        }
+    }
+
+    // ============================================================
+    // 5. Patch MemoryThoughtHandler.TryGainMemory
+    //    Block RimTalk_Slighted debuff when setting is enabled
+    // ============================================================
+    [HarmonyPatch(typeof(MemoryThoughtHandler), nameof(MemoryThoughtHandler.TryGainMemory))]
+    [HarmonyPatch(new[] { typeof(Thought_Memory), typeof(Pawn) })]
+    public static class Patch_MemoryThoughtHandler_TryGainMemory
+    {
+        static bool Prefix(Thought_Memory newThought)
+        {
+            if (!DistanceControlMod.Settings.BlockSlightedDebuff)
+                return true;
+
+            if (newThought?.def?.defName == "RimTalk_Slighted")
+                return false;
+
+            return true;
         }
     }
 
