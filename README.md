@@ -1,43 +1,45 @@
 # RimTalk Distance Control
 
-A RimWorld mod that allows customization of [RimTalk](https://steamcommunity.com/sharedfiles/filedetails/?id=3365145210)'s distance and range limits for pawn conversations.
+[English](README_EN.md) | **中文**
 
-## Features
+一个 RimWorld 模组，允许自定义 [RimTalk](https://steamcommunity.com/sharedfiles/filedetails/?id=3365145210) 中小人对话的距离和范围限制。
 
-### Distance & Range Control
+## 功能特性
 
-- **Conversation Distance** — Adjust maximum distance between pawns for dialogue (default: 20, 0 = unlimited)
-- **Same Room Requirement** — Toggle whether pawns must be in the same room to talk (default: on)
-- **Hearing Range** — Adjust the detection range for hearing-based pawn selection (default: 10)
-- **Viewing Range** — Adjust the detection range for sight-based pawn selection (default: 20)
-- **Context Distance** — Adjust environment context collection radius for buildings, items, flora (default: 5)
-- **Nearby Cells Distance** — Adjust nearby cell beauty scanning radius (default: 5)
+### 距离与范围控制
 
-### Social Effect Control
+- **对话最大距离** — 调整小人之间可对话的最大距离（默认：20，0 = 无限制）
+- **同房间要求** — 开关是否要求小人必须在同一房间才能对话（默认：开启）
+- **听觉检测范围** — 调整基于听觉的小人选择检测范围（默认：10）
+- **视觉检测范围** — 调整基于视觉的小人选择检测范围（默认：20）
+- **环境上下文采集距离** — 调整周围建筑、物品、动植物的扫描半径（默认：5）
+- **附近格子采集距离** — 调整附近格子美观度扫描半径（默认：5）
 
-- **Block Slighted Debuff** — Optionally block RimTalk's `Slighted` (insult/slight) negative thought from being applied (default: off)
+### 社交效果控制
 
-## Requirements
+- **拦截被忽视 debuff** — 可选拦截 RimTalk 施加的 `Slighted`（被忽视/被轻视）负面思想（默认：关闭）
+
+## 前置依赖
 
 - RimWorld 1.5+
-- [RimTalk](https://steamcommunity.com/sharedfiles/filedetails/?id=3365145210) (`cj.rimtalk`)
-- Harmony (bundled with RimWorld)
+- [RimTalk](https://steamcommunity.com/sharedfiles/filedetails/?id=3365145210)（`cj.rimtalk`）
+- Harmony（RimWorld 内置）
 
-## Installation
+## 安装方法
 
-1. Subscribe to this mod on Steam Workshop, or copy the folder to `RimWorld/Mods/`
-2. Ensure **RimTalk** is loaded before this mod
-3. Configure settings in Options → Mod Settings → RimTalk Distance Control
+1. 在 Steam 创意工坊订阅此模组，或将文件夹复制到 `RimWorld/Mods/`
+2. 确保 **RimTalk** 在此模组之前加载
+3. 在游戏选项 → Mod 设置 → RimTalk Distance Control 中配置参数
 
-## Build
+## 构建
 
 ```bash
 cd Source
 dotnet build
 ```
 
-Output: `1.6/Assemblies/RimTalkDistanceControl.dll`
+输出：`1.6/Assemblies/RimTalkDistanceControl.dll`
 
-## License
+## 许可证
 
 MIT
