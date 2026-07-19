@@ -13,5 +13,10 @@ Source/bin/
 Thumbs.db
 .DS_Store
 
+# Root-level images
+/*.png
+/*.jpg
+/*.jpeg
+
 # Misc
 RimTalkDistanceControl.zip
