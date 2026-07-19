@@ -65,6 +65,7 @@ namespace RimTalkDistanceControl
                         {
                             foreach (var p in samplePawn)
                             {
+                                _invokeArgs[0] = p;
                                 var state = GetMethod?.Invoke(null, _invokeArgs);
                                 if (state != null)
                                 {
@@ -139,7 +140,7 @@ namespace RimTalkDistanceControl
             // Force ReflectionCache initialization before patching
             _ = ReflectionCache.CacheType;
 
-            var harmony = new Harmony("community.rimtalk.distancecontrol");
+            var harmony = new Harmony("youyu.rimtalk.distancecontrol");
             harmony.PatchAll();
             Log.Message("[RimTalk Distance Control] Harmony patches applied.");
         }
@@ -165,55 +166,63 @@ namespace RimTalkDistanceControl
 
         static bool Prefix(Pawn initiator, Pawn recipient, ref bool __result)
         {
-            // Null guard to prevent NRE and null==null false positive
-            if (initiator == null || recipient == null)
+            try
             {
-                Log.Warning($"[RimTalk 距离控制] CanTalk 拒绝: 参数为空. initiator={initiator}, recipient={recipient}");
-                __result = false;
-                return false;
-            }
-
-            var settings = DistanceControlMod.Settings;
-
-            // Player pawn (invisible selector) talking to a pawn is always allowed
-            var playerPawn = ReflectionCache.PlayerPawn;
-            if (playerPawn != null && initiator == playerPawn)
-            {
-                __result = true;
-                return false;
-            }
-
-            float distance = initiator.Position.DistanceTo(recipient.Position);
-
-            // Check distance (0 = unlimited)
-            if (settings.TalkDistance > 0 && distance > settings.TalkDistance)
-            {
-                Log.Warning($"[RimTalk 距离控制] CanTalk 拒绝: 距离 {distance:F1} 超出对话距离 {settings.TalkDistance}. " +
-                    $"发起者={initiator.LabelShort}({initiator.Position}), 接收者={recipient.LabelShort}({recipient.Position})");
-                __result = false;
-                return false;
-            }
-
-            // Check same-room requirement
-            if (settings.RequireSameRoom)
-            {
-                var room1 = initiator.GetRoom();
-                var room2 = recipient.GetRoom();
-                bool sameRoom = (room1 != null && room2 != null && room1 == room2) ||
-                                (room1 == null && room2 == null);
-                if (!sameRoom)
+                // Null guard to prevent NRE and null==null false positive
+                if (initiator == null || recipient == null)
                 {
-                    string room1Desc = room1 != null ? $"室内(露天={room1.PsychologicallyOutdoors})" : "室外";
-                    string room2Desc = room2 != null ? $"室内(露天={room2.PsychologicallyOutdoors})" : "室外";
-                    Log.Warning($"[RimTalk 距离控制] CanTalk 拒绝: 不在同一房间. " +
-                        $"发起者={initiator.LabelShort}({room1Desc}), 接收者={recipient.LabelShort}({room2Desc})");
+                    Log.Warning($"[RimTalk 距离控制] CanTalk 拒绝: 参数为空. initiator={initiator}, recipient={recipient}");
                     __result = false;
                     return false;
                 }
-            }
 
-            __result = true;
-            return false;
+                var settings = DistanceControlMod.Settings;
+
+                // Player pawn (invisible selector) talking to a pawn is always allowed
+                var playerPawn = ReflectionCache.PlayerPawn;
+                if (playerPawn != null && initiator == playerPawn)
+                {
+                    __result = true;
+                    return false;
+                }
+
+                float distance = initiator.Position.DistanceTo(recipient.Position);
+
+                // Check distance (0 = unlimited)
+                if (settings.TalkDistance > 0 && distance > settings.TalkDistance)
+                {
+                    Log.Warning($"[RimTalk 距离控制] CanTalk 拒绝: 距离 {distance:F1} 超出对话距离 {settings.TalkDistance}. " +
+                        $"发起者={initiator.LabelShort}({initiator.Position}), 接收者={recipient.LabelShort}({recipient.Position})");
+                    __result = false;
+                    return false;
+                }
+
+                // Check same-room requirement
+                if (settings.RequireSameRoom)
+                {
+                    var room1 = initiator.GetRoom();
+                    var room2 = recipient.GetRoom();
+                    bool sameRoom = (room1 != null && room2 != null && room1 == room2) ||
+                                    (room1 == null && room2 == null);
+                    if (!sameRoom)
+                    {
+                        string room1Desc = room1 != null ? $"室内(露天={room1.PsychologicallyOutdoors})" : "室外";
+                        string room2Desc = room2 != null ? $"室内(露天={room2.PsychologicallyOutdoors})" : "室外";
+                        Log.Warning($"[RimTalk 距离控制] CanTalk 拒绝: 不在同一房间. " +
+                            $"发起者={initiator.LabelShort}({room1Desc}), 接收者={recipient.LabelShort}({room2Desc})");
+                        __result = false;
+                        return false;
+                    }
+                }
+
+                __result = true;
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Log.Warning($"[RimTalk Distance Control] CanTalk error: {ex.Message}");
+                return true; // 回退到原始方法
+            }
         }
     }
 
@@ -241,92 +250,100 @@ namespace RimTalkDistanceControl
         static bool Prefix(Pawn pawn1, Pawn pawn2, object detectionType, bool onlyTalkable, int maxResults,
             ref List<Pawn> __result)
         {
-            var settings = DistanceControlMod.Settings;
-
-            // Determine which range to use
-            bool isHearing = detectionType.ToString() == "Hearing";
-            float baseRange = isHearing ? settings.HearingRange : settings.ViewingRange;
-            var capacityDef = isHearing ? PawnCapacityDefOf.Hearing : PawnCapacityDefOf.Sight;
-
-            // Access Cache.Keys via cached reflection
-            var allPawns = ReflectionCache.KeysProperty?.GetValue(null) as IEnumerable<Pawn>;
-            if (allPawns == null)
+            try
             {
-                __result = new List<Pawn>();
+                var settings = DistanceControlMod.Settings;
+
+                // Determine which range to use
+                bool isHearing = detectionType.ToString() == "Hearing";
+                float baseRange = isHearing ? settings.HearingRange : settings.ViewingRange;
+                var capacityDef = isHearing ? PawnCapacityDefOf.Hearing : PawnCapacityDefOf.Sight;
+
+                // Access Cache.Keys via cached reflection
+                var allPawns = ReflectionCache.KeysProperty?.GetValue(null) as IEnumerable<Pawn>;
+                if (allPawns == null)
+                {
+                    __result = new List<Pawn>();
+                    return false;
+                }
+
+                // Cache CanGenerateTalk method once (outside the loop)
+                var canGenMethod = onlyTalkable ? ReflectionCache.CanGenerateTalkMethod : null;
+
+                // Cache rooms once (outside the loop)
+                var pawn1Room = settings.RequireSameRoom ? pawn1.GetRoom() : null;
+                var pawn2Room = (settings.RequireSameRoom && pawn2 != null) ? pawn2.GetRoom() : null;
+
+                // Use manual loop + pre-allocated list to avoid LINQ GC pressure
+                var candidates = new List<Pawn>(64);
+
+                foreach (var p in allPawns)
+                {
+                    if (p == pawn1 || p == pawn2) continue;
+
+                    // Check talkable
+                    if (onlyTalkable)
+                    {
+                        var pawnState = ReflectionCache.InvokeSingleArg(ReflectionCache.GetMethod, p);
+                        if (pawnState == null) continue;
+                        if (canGenMethod == null || !(bool)canGenMethod.Invoke(pawnState, null)) continue;
+                    }
+
+                    // Check capacity
+                    float capacityLevel = p.health.capacities.GetLevel(capacityDef);
+                    if (capacityLevel <= 0f) continue;
+
+                    // Check distance and room
+                    float detectionDistance = baseRange * capacityLevel;
+                    var pRoom = settings.RequireSameRoom ? p.GetRoom() : null;
+
+                    bool nearPawn1;
+                    if (settings.RequireSameRoom)
+                        nearPawn1 = pRoom == pawn1Room && p.Position.InHorDistOf(pawn1.Position, detectionDistance);
+                    else
+                        nearPawn1 = p.Position.InHorDistOf(pawn1.Position, detectionDistance);
+
+                    bool nearPawn2;
+                    if (pawn2 != null)
+                    {
+                        if (settings.RequireSameRoom)
+                            nearPawn2 = pRoom == pawn2Room && p.Position.InHorDistOf(pawn2.Position, detectionDistance);
+                        else
+                            nearPawn2 = p.Position.InHorDistOf(pawn2.Position, detectionDistance);
+                    }
+                    else
+                    {
+                        nearPawn2 = false;
+                    }
+
+                    if (!nearPawn1 && !nearPawn2) continue;
+
+                    candidates.Add(p);
+                }
+
+                // Sort by distance and take top N
+                candidates.Sort((a, b) =>
+                {
+                    float distA = pawn2 == null
+                        ? pawn1.Position.DistanceTo(a.Position)
+                        : Math.Min(pawn1.Position.DistanceTo(a.Position), pawn2.Position.DistanceTo(a.Position));
+                    float distB = pawn2 == null
+                        ? pawn1.Position.DistanceTo(b.Position)
+                        : Math.Min(pawn1.Position.DistanceTo(b.Position), pawn2.Position.DistanceTo(b.Position));
+                    return distA.CompareTo(distB);
+                });
+
+                if (candidates.Count > maxResults)
+                    candidates.RemoveRange(maxResults, candidates.Count - maxResults);
+
+                __result = candidates;
                 return false;
             }
-
-            // Cache CanGenerateTalk method once (outside the loop)
-            var canGenMethod = onlyTalkable ? ReflectionCache.CanGenerateTalkMethod : null;
-
-            // Cache rooms once (outside the loop)
-            var pawn1Room = settings.RequireSameRoom ? pawn1.GetRoom() : null;
-            var pawn2Room = (settings.RequireSameRoom && pawn2 != null) ? pawn2.GetRoom() : null;
-
-            // Use manual loop + pre-allocated list to avoid LINQ GC pressure
-            var candidates = new List<Pawn>(64);
-
-            foreach (var p in allPawns)
+            catch (Exception ex)
             {
-                if (p == pawn1 || p == pawn2) continue;
-
-                // Check talkable
-                if (onlyTalkable)
-                {
-                    var pawnState = ReflectionCache.InvokeSingleArg(ReflectionCache.GetMethod, p);
-                    if (pawnState == null) continue;
-                    if (canGenMethod == null || !(bool)canGenMethod.Invoke(pawnState, null)) continue;
-                }
-
-                // Check capacity
-                float capacityLevel = p.health.capacities.GetLevel(capacityDef);
-                if (capacityLevel <= 0f) continue;
-
-                // Check distance and room
-                float detectionDistance = baseRange * capacityLevel;
-                var pRoom = settings.RequireSameRoom ? p.GetRoom() : null;
-
-                bool nearPawn1;
-                if (settings.RequireSameRoom)
-                    nearPawn1 = pRoom == pawn1Room && p.Position.InHorDistOf(pawn1.Position, detectionDistance);
-                else
-                    nearPawn1 = p.Position.InHorDistOf(pawn1.Position, detectionDistance);
-
-                bool nearPawn2;
-                if (pawn2 != null)
-                {
-                    if (settings.RequireSameRoom)
-                        nearPawn2 = pRoom == pawn2Room && p.Position.InHorDistOf(pawn2.Position, detectionDistance);
-                    else
-                        nearPawn2 = p.Position.InHorDistOf(pawn2.Position, detectionDistance);
-                }
-                else
-                {
-                    nearPawn2 = false;
-                }
-
-                if (!nearPawn1 && !nearPawn2) continue;
-
-                candidates.Add(p);
+                Log.Warning($"[RimTalk Distance Control] GetNearbyPawnsInternal error: {ex.Message}\n{ex.StackTrace}");
+                return true; // 回退到原始方法，不阻断游戏
             }
-
-            // Sort by distance and take top N
-            candidates.Sort((a, b) =>
-            {
-                float distA = pawn2 == null
-                    ? pawn1.Position.DistanceTo(a.Position)
-                    : Math.Min(pawn1.Position.DistanceTo(a.Position), pawn2.Position.DistanceTo(a.Position));
-                float distB = pawn2 == null
-                    ? pawn1.Position.DistanceTo(b.Position)
-                    : Math.Min(pawn1.Position.DistanceTo(b.Position), pawn2.Position.DistanceTo(b.Position));
-                return distA.CompareTo(distB);
-            });
-
-            if (candidates.Count > maxResults)
-                candidates.RemoveRange(maxResults, candidates.Count - maxResults);
-
-            __result = candidates;
-            return false;
         }
     }
 

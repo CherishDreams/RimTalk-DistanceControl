@@ -1,23 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ModMetaData>
-    <name>RimTalk Distance Control</name>
-    <author>Community</author>
+    <name>RimTalk 对话距离调节拓展</name>
+    <author>幽瑜</author>
+    <version>1.0.2</version>
     <supportedVersions>
-        <li>1.5</li>
         <li>1.6</li>
     </supportedVersions>
-    <packageId>community.rimtalk.distancecontrol</packageId>
-    <description>Allows customization of RimTalk's distance and range limits for pawn conversations.
+    <packageId>youyu.rimtalk.distancecontrol</packageId>
+    <description>
+原版 RimTalk 中，小人对话的距离限制、检测范围、环境上下文采集距离等参数均为硬编码，无法自定义。本模组通过 Harmony 补丁将这些参数更改为可配置项，让你完全掌控小人的对话行为。
 
-Features:
-- Adjust maximum conversation distance between pawns (default: 20)
-- Toggle same-room requirement for conversations
-- Adjust hearing and viewing detection ranges
-- Adjust environment context collection distance
-- Relax click-to-talk reachability check
+功能详情：
+- 对话最大距离——调整小人之间自动发起对话的最大距离，设置为0可取消距离限制
+- 同房间限制——开关控制小人是否必须在同一房间内才能对话，关闭后支持跨房间交流
+- 听觉/视觉检测范围——自定义感知范围，决定哪些小人会被纳入对话上下文（作为旁观者或参与者）
+- 环境上下文采集距离——调整 AI 扫描周围建筑、物品、动植物的范围，影响对话中对环境的提及
+- 附近地格美观度采集距离——调整地格美观度扫描半径，影响室内/室外环境描述的丰富度
+- 可禁用"被忽视+"减心情Debuff
 
-Requires RimTalk mod to be installed.</description>
+注意：必须安装 RimTalk 本体模组！
+    </description>
     <modDependencies>
+        <li>
+            <packageId>brrainz.harmony</packageId>
+            <displayName>Harmony</displayName>
+            <steamWorkshopUrl>https://steamcommunity.com/sharedfiles/filedetails/?id=2009463077</steamWorkshopUrl>
+        </li>
         <li>
             <packageId>cj.rimtalk</packageId>
             <displayName>RimTalk</displayName>
