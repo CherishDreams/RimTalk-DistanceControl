@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+
+  <!-- 设置面板分类标题（Mod 设置窗口 Tab 上显示） -->
+  <RimTalkDC.Category.Title>RimTalk 对话距离调节拓展</RimTalkDC.Category.Title>
+
+  <!-- 对话最大距离 -->
+  <RimTalkDC.Label.TalkDistance>对话最大距离</RimTalkDC.Label.TalkDistance>
+  <RimTalkDC.Desc.TalkDistance>0 = 无限制</RimTalkDC.Desc.TalkDistance>
+
+  <!-- 要求同房间 -->
+  <RimTalkDC.Label.RequireSameRoom>要求同房间</RimTalkDC.Label.RequireSameRoom>
+  <RimTalkDC.Desc.RequireSameRoom>关闭后，小人可在不同房间之间对话。</RimTalkDC.Desc.RequireSameRoom>
+
+  <!-- 听觉检测范围 -->
+  <RimTalkDC.Label.HearingRange>听觉检测范围</RimTalkDC.Label.HearingRange>
+  <RimTalkDC.Desc.HearingRange>影响参与对话上下文的小人选择</RimTalkDC.Desc.HearingRange>
+
+  <!-- 视觉检测范围 -->
+  <RimTalkDC.Label.ViewingRange>视觉检测范围</RimTalkDC.Label.ViewingRange>
+  <RimTalkDC.Desc.ViewingRange>影响参与对话上下文的小人选择</RimTalkDC.Desc.ViewingRange>
+
+  <!-- 公告/广播听距范围 -->
+  <RimTalkDC.Label.AnnouncementHearingRange>公告/广播听距范围</RimTalkDC.Label.AnnouncementHearingRange>
+  <RimTalkDC.Desc.AnnouncementHearingRange>公告类对话的听觉检测范围，影响听到广播的小人数量</RimTalkDC.Desc.AnnouncementHearingRange>
+
+  <!-- 环境上下文采集距离 -->
+  <RimTalkDC.Label.ContextDistance>环境上下文采集距离</RimTalkDC.Label.ContextDistance>
+  <RimTalkDC.Desc.ContextDistance>周围建筑、物品、动植物的扫描半径</RimTalkDC.Desc.ContextDistance>
+
+  <!-- 拦截被忽视debuff -->
+  <RimTalkDC.Label.BlockSlightedDebuff>拦截被忽视debuff</RimTalkDC.Label.BlockSlightedDebuff>
+  <RimTalkDC.Desc.BlockSlightedDebuff>开启后，RimTalk 施加的 Slighted（被忽视/被轻视）负面思想将被拦截</RimTalkDC.Desc.BlockSlightedDebuff>
+
+  <!-- 按钮 -->
+  <RimTalkDC.Button.ResetAll>全部恢复默认值</RimTalkDC.Button.ResetAll>
+  <RimTalkDC.Button.Reset>重置</RimTalkDC.Button.Reset>
+
+</LanguageData>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+
+  <!-- Settings category title shown in Mod Settings window tab list -->
+  <RimTalkDC.Category.Title>RimTalk Distance Control</RimTalkDC.Category.Title>
+
+  <!-- Talk Distance -->
+  <RimTalkDC.Label.TalkDistance>Talk Distance</RimTalkDC.Label.TalkDistance>
+  <RimTalkDC.Desc.TalkDistance>0 = unlimited</RimTalkDC.Desc.TalkDistance>
+
+  <!-- Require Same Room -->
+  <RimTalkDC.Label.RequireSameRoom>Require Same Room</RimTalkDC.Label.RequireSameRoom>
+  <RimTalkDC.Desc.RequireSameRoom>When disabled, pawns can talk across different rooms.</RimTalkDC.Desc.RequireSameRoom>
+
+  <!-- Hearing Range -->
+  <RimTalkDC.Label.HearingRange>Hearing Range</RimTalkDC.Label.HearingRange>
+  <RimTalkDC.Desc.HearingRange>Affects which pawns join conversation context</RimTalkDC.Desc.HearingRange>
+
+  <!-- Viewing Range -->
+  <RimTalkDC.Label.ViewingRange>Viewing Range</RimTalkDC.Label.ViewingRange>
+  <RimTalkDC.Desc.ViewingRange>Affects which pawns join conversation context</RimTalkDC.Desc.ViewingRange>
+
+  <!-- Announcement Hearing Range -->
+  <RimTalkDC.Label.AnnouncementHearingRange>Announcement Hearing Range</RimTalkDC.Label.AnnouncementHearingRange>
+  <RimTalkDC.Desc.AnnouncementHearingRange>Hearing range for announcement-type conversations</RimTalkDC.Desc.AnnouncementHearingRange>
+
+  <!-- Context Collection Distance -->
+  <RimTalkDC.Label.ContextDistance>Context Collection Distance</RimTalkDC.Label.ContextDistance>
+  <RimTalkDC.Desc.ContextDistance>Scan radius for surrounding buildings, items, flora and fauna</RimTalkDC.Desc.ContextDistance>
+
+  <!-- Block Slighted Debuff -->
+  <RimTalkDC.Label.BlockSlightedDebuff>Block Slighted Debuff</RimTalkDC.Label.BlockSlightedDebuff>
+  <RimTalkDC.Desc.BlockSlightedDebuff>When enabled, RimTalk's Slighted thought will be blocked</RimTalkDC.Desc.BlockSlightedDebuff>
+
+  <!-- Buttons -->
+  <RimTalkDC.Button.ResetAll>Reset All to Defaults</RimTalkDC.Button.ResetAll>
+  <RimTalkDC.Button.Reset>Reset</RimTalkDC.Button.Reset>
+
+</LanguageData>

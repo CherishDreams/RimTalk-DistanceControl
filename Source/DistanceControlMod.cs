@@ -27,7 +27,7 @@ namespace RimTalkDistanceControl
 
         public override string SettingsCategory()
         {
-            return "RimTalk Distance Control";
+            return "RimTalkDC.Category.Title".Translate();
         }
 
         public override void DoSettingsWindowContents(Rect inRect)
@@ -71,44 +71,58 @@ namespace RimTalkDistanceControl
         private void DrawSettingsContent(Listing_Standard listing)
         {
             // Talk Distance (float, 0-100)
-            DrawFloatSetting(listing, "对话最大距离", "0 = 无限制",
+            DrawFloatSetting(listing,
+                "RimTalkDC.Label.TalkDistance".Translate(),
+                "RimTalkDC.Desc.TalkDistance".Translate(),
                 ref Settings.TalkDistance, ref _talkDistBuf, DefaultValues.TalkDistance, 0f, 100f);
             listing.Gap(16f);
 
             // Require Same Room (bool)
-            DrawBoolSetting(listing, "要求同房间", "关闭后，小人可在不同房间之间对话。",
+            DrawBoolSetting(listing,
+                "RimTalkDC.Label.RequireSameRoom".Translate(),
+                "RimTalkDC.Desc.RequireSameRoom".Translate(),
                 ref Settings.RequireSameRoom, DefaultValues.RequireSameRoom);
             listing.Gap(16f);
 
             // Hearing Range (float, 1-50)
-            DrawFloatSetting(listing, "听觉检测范围", "影响参与对话上下文的小人选择",
+            DrawFloatSetting(listing,
+                "RimTalkDC.Label.HearingRange".Translate(),
+                "RimTalkDC.Desc.HearingRange".Translate(),
                 ref Settings.HearingRange, ref _hearingRangeBuf, DefaultValues.HearingRange, 1f, 50f);
             listing.Gap(16f);
 
             // Viewing Range (float, 1-50)
-            DrawFloatSetting(listing, "视觉检测范围", "影响参与对话上下文的小人选择",
+            DrawFloatSetting(listing,
+                "RimTalkDC.Label.ViewingRange".Translate(),
+                "RimTalkDC.Desc.ViewingRange".Translate(),
                 ref Settings.ViewingRange, ref _viewingRangeBuf, DefaultValues.ViewingRange, 1f, 50f);
             listing.Gap(16f);
 
             // Announcement Hearing Range (float, 1-100)
-            DrawFloatSetting(listing, "公告/广播听距范围", "公告类对话的听觉检测范围，影响听到广播的小人数量",
+            DrawFloatSetting(listing,
+                "RimTalkDC.Label.AnnouncementHearingRange".Translate(),
+                "RimTalkDC.Desc.AnnouncementHearingRange".Translate(),
                 ref Settings.AnnouncementHearingRange, ref _announceHearingBuf, DefaultValues.AnnouncementHearingRange, 1f, 100f);
             listing.Gap(16f);
 
             // Context Distance (int, 1-20)
-            DrawIntSetting(listing, "环境上下文采集距离", "周围建筑、物品、动植物的扫描半径",
+            DrawIntSetting(listing,
+                "RimTalkDC.Label.ContextDistance".Translate(),
+                "RimTalkDC.Desc.ContextDistance".Translate(),
                 ref Settings.ContextDistance, ref _contextDistBuf, DefaultValues.ContextDistance, 1, 20);
             listing.Gap(16f);
 
             // Block Slighted Debuff (bool)
-            DrawBoolSetting(listing, "拦截被忽视debuff", "开启后，RimTalk 施加的 Slighted（被忽视/被轻视）负面思想将被拦截",
+            DrawBoolSetting(listing,
+                "RimTalkDC.Label.BlockSlightedDebuff".Translate(),
+                "RimTalkDC.Desc.BlockSlightedDebuff".Translate(),
                 ref Settings.BlockSlightedDebuff, DefaultValues.BlockSlightedDebuff);
             listing.Gap(16f);
 
             listing.Gap(15f);
 
             // Reset All button
-            if (listing.ButtonText("全部恢复默认值"))
+            if (listing.ButtonText("RimTalkDC.Button.ResetAll".Translate()))
             {
                 Settings.TalkDistance = DefaultValues.TalkDistance;
                 Settings.RequireSameRoom = DefaultValues.RequireSameRoom;
@@ -173,7 +187,7 @@ namespace RimTalkDistanceControl
 
             Widgets.TextFieldNumeric(inputRect, ref value, ref buffer, min, max);
 
-            if (Widgets.ButtonText(resetBtnRect, "重置"))
+            if (Widgets.ButtonText(resetBtnRect, "RimTalkDC.Button.Reset".Translate()))
             {
                 value = defaultValue;
                 buffer = value.ToString("F0");
@@ -224,7 +238,7 @@ namespace RimTalkDistanceControl
 
             Widgets.TextFieldNumeric(inputRect, ref value, ref buffer, min, max);
 
-            if (Widgets.ButtonText(resetBtnRect, "重置"))
+            if (Widgets.ButtonText(resetBtnRect, "RimTalkDC.Button.Reset".Translate()))
             {
                 value = defaultValue;
                 buffer = value.ToString();
@@ -252,7 +266,7 @@ namespace RimTalkDistanceControl
 
             Widgets.CheckboxLabeled(checkRect, "", ref value);
 
-            if (Widgets.ButtonText(resetBtnRect, "重置"))
+            if (Widgets.ButtonText(resetBtnRect, "RimTalkDC.Button.Reset".Translate()))
             {
                 value = defaultValue;
             }
