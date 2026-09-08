@@ -13,7 +13,7 @@ A RimWorld mod that allows customization of [RimTalk](https://steamcommunity.com
 - **Hearing Range** — Adjust the detection range for hearing-based pawn selection (default: 10)
 - **Viewing Range** — Adjust the detection range for sight-based pawn selection (default: 20)
 - **Context Distance** — Adjust environment context collection radius for buildings, items, flora (default: 5)
-- **Nearby Cells Distance** — Adjust nearby cell beauty scanning radius (default: 5)
+- **Announcement Hearing Range** — Adjust detection range for announcement-type conversations (default: 30)
 
 ### Social Effect Control
 

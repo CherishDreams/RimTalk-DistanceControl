@@ -12,8 +12,8 @@ namespace RimTalkDistanceControl
         private string _talkDistBuf = "";
         private string _hearingRangeBuf = "";
         private string _viewingRangeBuf = "";
+        private string _announceHearingBuf = "";
         private string _contextDistBuf = "";
-        private string _nearbyCellsBuf = "";
 
         public DistanceControlMod(ModContentPack content) : base(content)
         {
@@ -21,8 +21,8 @@ namespace RimTalkDistanceControl
             _talkDistBuf = Settings.TalkDistance.ToString("F0");
             _hearingRangeBuf = Settings.HearingRange.ToString("F0");
             _viewingRangeBuf = Settings.ViewingRange.ToString("F0");
+            _announceHearingBuf = Settings.AnnouncementHearingRange.ToString("F0");
             _contextDistBuf = Settings.ContextDistance.ToString();
-            _nearbyCellsBuf = Settings.NearbyCellsDistance.ToString();
         }
 
         public override string SettingsCategory()
@@ -90,14 +90,14 @@ namespace RimTalkDistanceControl
                 ref Settings.ViewingRange, ref _viewingRangeBuf, DefaultValues.ViewingRange, 1f, 50f);
             listing.Gap(16f);
 
+            // Announcement Hearing Range (float, 1-100)
+            DrawFloatSetting(listing, "公告/广播听距范围", "公告类对话的听觉检测范围，影响听到广播的小人数量",
+                ref Settings.AnnouncementHearingRange, ref _announceHearingBuf, DefaultValues.AnnouncementHearingRange, 1f, 100f);
+            listing.Gap(16f);
+
             // Context Distance (int, 1-20)
             DrawIntSetting(listing, "环境上下文采集距离", "周围建筑、物品、动植物的扫描半径",
                 ref Settings.ContextDistance, ref _contextDistBuf, DefaultValues.ContextDistance, 1, 20);
-            listing.Gap(16f);
-
-            // Nearby Cells Distance (int, 1-20)
-            DrawIntSetting(listing, "附近格子美观度采集距离", "周围格子的美观度扫描半径（影响室内、室外环境描述）",
-                ref Settings.NearbyCellsDistance, ref _nearbyCellsBuf, DefaultValues.NearbyCellsDistance, 1, 20);
             listing.Gap(16f);
 
             // Block Slighted Debuff (bool)
@@ -114,8 +114,8 @@ namespace RimTalkDistanceControl
                 Settings.RequireSameRoom = DefaultValues.RequireSameRoom;
                 Settings.HearingRange = DefaultValues.HearingRange;
                 Settings.ViewingRange = DefaultValues.ViewingRange;
+                Settings.AnnouncementHearingRange = DefaultValues.AnnouncementHearingRange;
                 Settings.ContextDistance = DefaultValues.ContextDistance;
-                Settings.NearbyCellsDistance = DefaultValues.NearbyCellsDistance;
                 Settings.BlockSlightedDebuff = DefaultValues.BlockSlightedDebuff;
                 SyncBuffers();
             }
@@ -126,8 +126,8 @@ namespace RimTalkDistanceControl
             _talkDistBuf = Settings.TalkDistance.ToString("F0");
             _hearingRangeBuf = Settings.HearingRange.ToString("F0");
             _viewingRangeBuf = Settings.ViewingRange.ToString("F0");
+            _announceHearingBuf = Settings.AnnouncementHearingRange.ToString("F0");
             _contextDistBuf = Settings.ContextDistance.ToString();
-            _nearbyCellsBuf = Settings.NearbyCellsDistance.ToString();
         }
 
         /// <summary>

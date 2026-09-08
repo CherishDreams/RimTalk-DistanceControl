@@ -12,8 +12,8 @@ namespace RimTalkDistanceControl
         public const bool RequireSameRoom = true;
         public const float HearingRange = 10f;
         public const float ViewingRange = 20f;
+        public const float AnnouncementHearingRange = 30f;
         public const int ContextDistance = 5;
-        public const int NearbyCellsDistance = 5;
         public const bool BlockSlightedDebuff = false;
     }
 
@@ -40,14 +40,14 @@ namespace RimTalkDistanceControl
         public float ViewingRange = DefaultValues.ViewingRange;
 
         /// <summary>
+        /// 公告/广播听觉检测范围
+        /// </summary>
+        public float AnnouncementHearingRange = DefaultValues.AnnouncementHearingRange;
+
+        /// <summary>
         /// 环境上下文采集距离
         /// </summary>
         public int ContextDistance = DefaultValues.ContextDistance;
-
-        /// <summary>
-        /// 附近格子采集距离（用于美容等上下文）
-        /// </summary>
-        public int NearbyCellsDistance = DefaultValues.NearbyCellsDistance;
 
         /// <summary>
         /// 是否拦截 RimTalk 的"被忽视"(Slighted) debuff 施加
@@ -60,8 +60,12 @@ namespace RimTalkDistanceControl
             Scribe_Values.Look(ref RequireSameRoom, "requireSameRoom", DefaultValues.RequireSameRoom);
             Scribe_Values.Look(ref HearingRange, "hearingRange", DefaultValues.HearingRange);
             Scribe_Values.Look(ref ViewingRange, "viewingRange", DefaultValues.ViewingRange);
+            Scribe_Values.Look(ref AnnouncementHearingRange, "announcementHearingRange", DefaultValues.AnnouncementHearingRange);
             Scribe_Values.Look(ref ContextDistance, "contextDistance", DefaultValues.ContextDistance);
-            Scribe_Values.Look(ref NearbyCellsDistance, "nearbyCellsDistance", DefaultValues.NearbyCellsDistance);
+
+            // 已废弃键，仅做读取防止静默丢失，下次保存自动清除
+            int _legacyNearbyCells = -1;
+            Scribe_Values.Look(ref _legacyNearbyCells, "nearbyCellsDistance", -1);
             Scribe_Values.Look(ref BlockSlightedDebuff, "blockSlightedDebuff", DefaultValues.BlockSlightedDebuff);
         }
     }
