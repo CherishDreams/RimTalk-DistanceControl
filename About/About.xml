@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ModMetaData>
-    <name>RimTalk 对话距离调节拓展</name>
+    <name>RimTalk Distance Control</name>
     <author>幽瑜</author>
-    <modVersion>1.0.2</modVersion>
+    <modVersion>1.0.3</modVersion>
     <supportedVersions>
         <li>1.6</li>
     </supportedVersions>
@@ -15,8 +15,7 @@
 - 同房间限制——开关控制小人是否必须在同一房间内才能对话，关闭后支持跨房间交流
 - 听觉/视觉检测范围——自定义感知范围，决定哪些小人会被纳入对话上下文（作为旁观者或参与者）
 - 环境上下文采集距离——调整 AI 扫描周围建筑、物品、动植物的范围，影响对话中对环境的提及
-- 附近地格美观度采集距离——调整地格美观度扫描半径，影响室内/室外环境描述的丰富度
-- 可禁用"被忽视+"减心情Debuff
+- 可禁用“被忽视+”减心情Debuff
 
 注意：必须安装 RimTalk 本体模组！
     </description>
