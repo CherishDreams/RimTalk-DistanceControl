@@ -32,6 +32,33 @@ namespace RimTalkDistanceControl
         private static bool _canGenerateTalkResolved;
         private static bool _canGenerateTalkWarned;
 
+        // RimTalk Settings reflection (for MaxPawnContextCount)
+        private static readonly Type SettingsType;
+        private static readonly MethodInfo SettingsGetMethod;
+        private static readonly FieldInfo ContextField;
+        private static readonly FieldInfo MaxPawnCountField;
+
+        /// <summary>
+        /// Get RimTalk's MaxPawnContextCount via reflection. Falls back to 10.
+        /// RimTalkSettings.Context and ContextSettings.MaxPawnContextCount are public fields.
+        /// </summary>
+        public static int MaxPawnContextCount
+        {
+            get
+            {
+                if (SettingsGetMethod == null || ContextField == null || MaxPawnCountField == null) return 10;
+                try
+                {
+                    var settings = SettingsGetMethod.Invoke(null, null);
+                    var ctx = ContextField.GetValue(settings);
+                    if (ctx == null) return 10;
+                    var val = MaxPawnCountField.GetValue(ctx);
+                    return val is int i && i > 0 ? i : 10;
+                }
+                catch { return 10; }
+            }
+        }
+
         /// <summary>
         /// Get the invisible player pawn. Cached after first successful resolution.
         /// </summary>
@@ -113,6 +140,16 @@ namespace RimTalkDistanceControl
             return method?.Invoke(null, _invokeArgs);
         }
 
+        /// <summary>
+        /// Debug-only log: only outputs when DevMode is enabled.
+        /// Used for high-frequency runtime checks to avoid log spam for normal players.
+        /// </summary>
+        public static void DebugLog(string message)
+        {
+            if (Prefs.DevMode)
+                Log.Message($"[RimTalk Distance Control] {message}");
+        }
+
         static ReflectionCache()
         {
             CacheType = AccessTools.TypeByName("RimTalk.Data.Cache");
@@ -129,6 +166,30 @@ namespace RimTalkDistanceControl
                 IsTalkEligibleMethod = AccessTools.Method(PawnUtilType, "IsTalkEligible", new[] { typeof(Pawn) });
                 HasVocalLinkMethod = AccessTools.Method(PawnUtilType, "HasVocalLink", new[] { typeof(Pawn) });
             }
+
+            SettingsType = AccessTools.TypeByName("RimTalk.Settings");
+            if (SettingsType != null)
+            {
+                SettingsGetMethod = AccessTools.Method(SettingsType, "Get");
+                if (SettingsGetMethod != null)
+                {
+                    try
+                    {
+                        var settings = SettingsGetMethod.Invoke(null, null);
+                        if (settings != null)
+                        {
+                            // Context is a public FIELD on RimTalkSettings (not a property)
+                            ContextField = AccessTools.Field(settings.GetType(), "Context");
+                            if (ContextField != null)
+                            {
+                                // MaxPawnContextCount is a public FIELD on ContextSettings
+                                MaxPawnCountField = AccessTools.Field(ContextField.FieldType, "MaxPawnContextCount");
+                            }
+                        }
+                    }
+                    catch { }
+                }
+            }
         }
     }
 
@@ -141,8 +202,31 @@ namespace RimTalkDistanceControl
             _ = ReflectionCache.CacheType;
 
             var harmony = new Harmony("youyu.rimtalk.distancecontrol");
-            harmony.PatchAll();
-            Log.Message("[RimTalk Distance Control] Harmony patches applied.");
+
+            int total = 0, success = 0;
+            success += TryPatch(harmony, "CustomDialogueService.CanTalk", typeof(Patch_CustomDialogueService_CanTalk)) ? 1 : 0; total++;
+            success += TryPatch(harmony, "PawnSelector.GetNearbyPawnsInternal", typeof(Patch_PawnSelector_GetNearbyPawnsInternal)) ? 1 : 0; total++;
+            success += TryPatch(harmony, "ContextHelper.CollectNearbyContext", typeof(Patch_ContextHelper_CollectNearbyContext)) ? 1 : 0; total++;
+            success += TryPatch(harmony, "MemoryThoughtHandler.TryGainMemory", typeof(Patch_MemoryThoughtHandler_TryGainMemory)) ? 1 : 0; total++;
+
+            if (success == total)
+                Log.Message($"[RimTalk Distance Control] All {total} Harmony patches applied successfully.");
+            else
+                Log.Warning($"[RimTalk Distance Control] {success}/{total} Harmony patches applied. Some features may not work due to RimTalk version compatibility.");
+        }
+
+        private static bool TryPatch(Harmony harmony, string name, Type patchType)
+        {
+            try
+            {
+                new PatchClassProcessor(harmony, patchType).Patch();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Log.Warning($"[RimTalk Distance Control] Failed to patch {name}: {ex.Message}");
+                return false;
+            }
         }
     }
 
@@ -171,7 +255,7 @@ namespace RimTalkDistanceControl
                 // Null guard to prevent NRE and null==null false positive
                 if (initiator == null || recipient == null)
                 {
-                    Log.Warning($"[RimTalk 距离控制] CanTalk 拒绝: 参数为空. initiator={initiator}, recipient={recipient}");
+                    ReflectionCache.DebugLog($"CanTalk denied: null argument. initiator={initiator}, recipient={recipient}");
                     __result = false;
                     return false;
                 }
@@ -180,7 +264,9 @@ namespace RimTalkDistanceControl
 
                 // Player pawn (invisible selector) talking to a pawn is always allowed
                 var playerPawn = ReflectionCache.PlayerPawn;
-                if (playerPawn != null && initiator == playerPawn)
+                bool isPlayerPawn = (playerPawn != null && initiator == playerPawn)
+                                    || !initiator.Spawned;
+                if (isPlayerPawn)
                 {
                     __result = true;
                     return false;
@@ -191,8 +277,8 @@ namespace RimTalkDistanceControl
                 // Check distance (0 = unlimited)
                 if (settings.TalkDistance > 0 && distance > settings.TalkDistance)
                 {
-                    Log.Warning($"[RimTalk 距离控制] CanTalk 拒绝: 距离 {distance:F1} 超出对话距离 {settings.TalkDistance}. " +
-                        $"发起者={initiator.LabelShort}({initiator.Position}), 接收者={recipient.LabelShort}({recipient.Position})");
+                    ReflectionCache.DebugLog($"CanTalk denied: distance {distance:F1} exceeds TalkDistance {settings.TalkDistance}. " +
+                        $"initiator={initiator.LabelShort}({initiator.Position}), recipient={recipient.LabelShort}({recipient.Position})");
                     __result = false;
                     return false;
                 }
@@ -206,10 +292,10 @@ namespace RimTalkDistanceControl
                                     (room1 == null && room2 == null);
                     if (!sameRoom)
                     {
-                        string room1Desc = room1 != null ? $"室内(露天={room1.PsychologicallyOutdoors})" : "室外";
-                        string room2Desc = room2 != null ? $"室内(露天={room2.PsychologicallyOutdoors})" : "室外";
-                        Log.Warning($"[RimTalk 距离控制] CanTalk 拒绝: 不在同一房间. " +
-                            $"发起者={initiator.LabelShort}({room1Desc}), 接收者={recipient.LabelShort}({room2Desc})");
+                        string room1Desc = room1 != null ? $"indoors(psychOutdoors={room1.PsychologicallyOutdoors})" : "outdoors";
+                        string room2Desc = room2 != null ? $"indoors(psychOutdoors={room2.PsychologicallyOutdoors})" : "outdoors";
+                        ReflectionCache.DebugLog($"CanTalk denied: not in same room. " +
+                            $"initiator={initiator.LabelShort}({room1Desc}), recipient={recipient.LabelShort}({room2Desc})");
                         __result = false;
                         return false;
                     }
@@ -244,19 +330,22 @@ namespace RimTalkDistanceControl
             }
             var detectionType = AccessTools.Inner(type, "DetectionType");
             return AccessTools.Method(type, "GetNearbyPawnsInternal",
-                new[] { typeof(Pawn), typeof(Pawn), detectionType, typeof(bool), typeof(int) });
+                new[] { typeof(Pawn), typeof(Pawn), detectionType, typeof(bool), typeof(bool) });
         }
 
-        static bool Prefix(Pawn pawn1, Pawn pawn2, object detectionType, bool onlyTalkable, int maxResults,
+        static bool Prefix(Pawn pawn1, Pawn pawn2, object detectionType, bool onlyTalkable, bool isAnnouncement,
             ref List<Pawn> __result)
         {
             try
             {
+                int maxResults = Math.Max(10, ReflectionCache.MaxPawnContextCount);
                 var settings = DistanceControlMod.Settings;
 
                 // Determine which range to use
                 bool isHearing = detectionType.ToString() == "Hearing";
-                float baseRange = isHearing ? settings.HearingRange : settings.ViewingRange;
+                float baseRange = isHearing
+                    ? (isAnnouncement ? settings.AnnouncementHearingRange : settings.HearingRange)
+                    : settings.ViewingRange;
                 var capacityDef = isHearing ? PawnCapacityDefOf.Hearing : PawnCapacityDefOf.Sight;
 
                 // Access Cache.Keys via cached reflection
@@ -377,38 +466,9 @@ namespace RimTalkDistanceControl
         }
     }
 
-    // ============================================================
-    // 4. Patch ContextHelper.GetNearbyCells
-    //    Override distance parameter
-    // ============================================================
-    [HarmonyPatch]
-    public static class Patch_ContextHelper_GetNearbyCells
-    {
-        static MethodBase TargetMethod()
-        {
-            var type = AccessTools.TypeByName("RimTalk.Util.ContextHelper");
-            if (type == null)
-            {
-                Log.Warning("[RimTalk Distance Control] Type not found: RimTalk.Util.ContextHelper");
-                return null;
-            }
-            var method = AccessTools.Method(type, "GetNearbyCells");
-            if (method == null)
-            {
-                Log.Warning("[RimTalk Distance Control] Method not found: GetNearbyCells");
-                return null;
-            }
-            return method;
-        }
-
-        static void Prefix(ref int distance)
-        {
-            distance = DistanceControlMod.Settings.NearbyCellsDistance;
-        }
-    }
 
     // ============================================================
-    // 5. Patch MemoryThoughtHandler.TryGainMemory
+    // 4. Patch MemoryThoughtHandler.TryGainMemory
     //    Block RimTalk_Slighted debuff when setting is enabled
     // ============================================================
     [HarmonyPatch(typeof(MemoryThoughtHandler), nameof(MemoryThoughtHandler.TryGainMemory))]
